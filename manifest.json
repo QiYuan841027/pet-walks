@@ -1,0 +1,31 @@
+{
+  "name": "宠步 - 宠物代遛平台",
+  "short_name": "宠步",
+  "description": "宠物代遛代喂接单平台。不方便遛狗？找人帮你。有空闲时间？接单赚零花钱。让每只宠物都有人陪。",
+  "id": "pet-walker-app-v1",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "lang": "zh-CN",
+  "scope": "./",
+  "categories": ["lifestyle", "social"],
+  "icons": [
+    {
+      "src": "icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
