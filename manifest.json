@@ -1,0 +1,11 @@
+{
+  "name": "宠步 - 宠物代遛平台",
+  "short_name": "宠步",
+  "description": "宠物代遛代喂接单平台，让每只宠物都有人陪",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "icons": []
+}

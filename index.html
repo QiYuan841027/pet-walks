@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="宠步">
+<link rel="manifest" href="manifest.json">
+<title>宠步 - 宠物代遛平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#f97316;--primary-light:#fff7ed;--danger:#ef4444;--success:#22c55e;--bg:#f5f5f5;--card:#fff;--text:#1f2937;--text-light:#6b7280;--border:#e5e7eb;--shadow:0 1px 3px rgba(0,0,0,.1);--radius:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:70px}
+.header{background:var(--primary);color:#fff;padding:16px 20px;text-align:center;font-size:18px;font-weight:700;position:sticky;top:0;z-index:100}
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);display:flex;border-top:1px solid var(--border);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0;color:var(--text-light);font-size:11px;cursor:pointer;transition:color .2s;border:none;background:none}
+.tab-item.active{color:var(--primary)}
+.tab-item svg{width:22px;height:22px;margin-bottom:2px}
+.page{display:none;padding:16px}
+.page.active{display:block}
+.card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card-title{font-size:16px;font-weight:600;margin-bottom:8px}
+.card-sub{font-size:13px;color:var(--text-light)}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;margin:2px 4px 2px 0}
+.tag-orange{background:#fff7ed;color:#ea580c}
+.tag-blue{background:#eff6ff;color:#2563eb}
+.tag-green{background:#f0fdf4;color:#16a34a}
+.tag-gray{background:#f3f4f6;color:#4b5563}
+.btn{display:inline-block;padding:10px 20px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--primary);color:#fff;width:100%}
+.btn-primary:active{background:#ea580c}
+.btn-outline{background:transparent;border:2px solid var(--primary);color:var(--primary)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-danger{background:var(--danger);color:#fff}
+.input-group{margin-bottom:14px}
+.input-group label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.input-group input,.input-group select,.input-group textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card);outline:none;transition:border .2s}
+.input-group input:focus,.input-group select:focus,.input-group textarea:focus{border-color:var(--primary)}
+.input-group textarea{min-height:80px;resize:vertical}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-pending{background:#fef3c7;color:#d97706}
+.badge-ongoing{background:#dbeafe;color:#2563eb}
+.badge-done{background:#d1fae5;color:#059669}
+.empty{text-align:center;padding:40px 20px;color:var(--text-light)}
+.empty svg{width:60px;height:60px;margin-bottom:12px;opacity:.4}
+.stat-row{display:flex;gap:12px;margin-bottom:12px}
+.stat-card{flex:1;background:var(--card);border-radius:var(--radius);padding:14px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:24px;font-weight:700;color:var(--primary)}
+.stat-label{font-size:12px;color:var(--text-light);margin-top:4px}
+.hero{background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;border-radius:var(--radius);padding:24px;margin-bottom:16px;text-align:center}
+.hero h2{font-size:20px;margin-bottom:8px}
+.hero p{font-size:13px;opacity:.9}
+.order-card{padding:14px;border-radius:var(--radius);background:var(--card);margin-bottom:10px;box-shadow:var(--shadow);border-left:4px solid var(--primary)}
+.order-card .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.order-card .order-pet{font-weight:600;font-size:15px}
+.order-card .order-info{font-size:13px;color:var(--text-light);line-height:1.6}
+.order-card .order-footer{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);padding:20px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto}
+.modal h3{margin-bottom:12px}
+.rating-stars{display:flex;gap:4px;font-size:28px;cursor:pointer;margin:8px 0}
+.rating-stars span{color:#d1d5db;transition:color .2s}
+.rating-stars span.active{color:#fbbf24}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.filter-chip{padding:6px 14px;border-radius:20px;border:1px solid var(--border);font-size:13px;white-space:nowrap;cursor:pointer;background:var(--card);transition:all .2s}
+.filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.section-title{font-size:15px;font-weight:600;margin:16px 0 10px;display:flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+
+<div class="header" id="headerTitle">宠步 - 宠物代遛平台</div>
+
+<!-- 首页 -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <h2>让每只宠物都有人陪</h2>
+    <p>不方便遛狗？找人帮你。有空闲时间？接单赚零花钱。</p>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card"><div class="stat-num" id="statOrders">0</div><div class="stat-label">已完成订单</div></div>
+    <div class="stat-card"><div class="stat-num" id="statWalkers">0</div><div class="stat-label">在线遛狗师</div></div>
+    <div class="stat-card"><div class="stat-num" id="statPending">0</div><div class="stat-label">待接需求</div></div>
+  </div>
+  <div class="card" style="text-align:center">
+    <div class="card-title">快速开始</div>
+    <div class="card-sub" style="margin-bottom:12px">选择你的身份开始使用</div>
+    <button class="btn btn-primary" style="margin-bottom:8px" onclick="switchTab('publish')">我是宠物主人，发布需求</button>
+    <button class="btn btn-outline" style="width:100%" onclick="switchTab('hall')">我是遛狗师，浏览接单</button>
+  </div>
+</div>
+
+<!-- 发布需求 -->
+<div class="page" id="page-publish">
+  <div class="card">
+    <div class="card-title">发布代遛/代喂需求</div>
+    <div class="input-group"><label>宠物名字</label><input type="text" id="petName" placeholder="如：旺财"></div>
+    <div class="input-group"><label>宠物类型</label><select id="petType"><option value="狗">狗</option><option value="猫">猫</option><option value="其他">其他</option></select></div>
+    <div class="input-group"><label>服务类型</label><select id="serviceType"><option value="遛狗">遛狗</option><option value="喂猫">喂猫</option><option value="遛狗+喂食">遛狗+喂食</option><option value="上门照看">上门照看</option></select></div>
+    <div class="input-group"><label>服务时间</label><input type="datetime-local" id="serviceTime"></div>
+    <div class="input-group"><label>地址（小区/街道即可）</label><input type="text" id="address" placeholder="如：阳光小区3栋"></div>
+    <div class="input-group"><label>报酬（元）</label><input type="number" id="price" placeholder="如：30" min="1"></div>
+    <div class="input-group"><label>备注说明</label><textarea id="note" placeholder="如：狗狗比较活泼，需要牵紧绳子；钥匙放在门垫下面..."></textarea></div>
+    <div class="input-group"><label>联系电话</label><input type="tel" id="phone" placeholder="仅接单后对方可见"></div>
+    <button class="btn btn-primary" onclick="publishOrder()">发布需求</button>
+  </div>
+</div>
+
+<!-- 需求大厅 -->
+<div class="page" id="page-hall">
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-chip active" onclick="filterOrders('all',this)">全部</div>
+    <div class="filter-chip" onclick="filterOrders('遛狗',this)">遛狗</div>
+    <div class="filter-chip" onclick="filterOrders('喂猫',this)">喂猫</div>
+    <div class="filter-chip" onclick="filterOrders('上门照看',this)">上门照看</div>
+  </div>
+  <div id="orderList"></div>
+</div>
+
+<!-- 我的订单 -->
+<div class="page" id="page-orders">
+  <div class="section-title">我发布的</div>
+  <div id="myPostedOrders"></div>
+  <div class="section-title">我接的单</div>
+  <div id="myTakenOrders"></div>
+</div>
+
+<!-- 底部导航 -->
+<div class="tab-bar">
+  <button class="tab-item active" onclick="switchTab('home')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>首页
+  </button>
+  <button class="tab-item" onclick="switchTab('publish')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>发布
+  </button>
+  <button class="tab-item" onclick="switchTab('hall')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>大厅
+  </button>
+  <button class="tab-item" onclick="switchTab('orders')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>订单
+  </button>
+</div>
+
+<!-- 评价弹窗 -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal">
+    <h3>评价订单</h3>
+    <div class="rating-stars" id="ratingStars">
+      <span onclick="setRating(1)">★</span><span onclick="setRating(2)">★</span>
+      <span onclick="setRating(3)">★</span><span onclick="setRating(4)">★</span><span onclick="setRating(5)">★</span>
+    </div>
+    <div class="input-group"><label>评价内容</label><textarea id="reviewText" placeholder="说说你的体验..."></textarea></div>
+    <button class="btn btn-primary" onclick="submitReview()">提交评价</button>
+    <button class="btn btn-outline" style="width:100%;margin-top:8px" onclick="closeReview()">取消</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'petwalker_orders';
+
+function getOrders(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch(e){return[]}}
+function saveOrders(orders){localStorage.setItem(STORAGE_KEY,JSON.stringify(orders))}
+
+function generateId(){return 'PW'+Date.now()+Math.random().toString(36).slice(2,6)}
+
+let currentTab='home';
+let currentFilter='all';
+let currentReviewOrderId=null;
+let currentRating=0;
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  const page=document.getElementById('page-'+tab);
+  if(page)page.classList.add('active');
+  const tabs=document.querySelectorAll('.tab-item');
+  const idx={home:0,publish:1,hall:2,orders:3}[tab];
+  if(idx!==undefined && tabs[idx])tabs[idx].classList.add('active');
+  document.getElementById('headerTitle').textContent={home:'宠步 - 宠物代遛平台',publish:'发布需求',hall:'需求大厅',orders:'我的订单'}[tab]||'宠步';
+  if(tab==='home')updateStats();
+  if(tab==='hall')renderOrderList();
+  if(tab==='orders')renderMyOrders();
+}
+
+function publishOrder(){
+  const petName=document.getElementById('petName').value.trim();
+  const petType=document.getElementById('petType').value;
+  const serviceType=document.getElementById('serviceType').value;
+  const serviceTime=document.getElementById('serviceTime').value;
+  const address=document.getElementById('address').value.trim();
+  const price=parseInt(document.getElementById('price').value)||0;
+  const note=document.getElementById('note').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+
+  if(!petName){alert('请填写宠物名字');return}
+  if(!serviceTime){alert('请选择服务时间');return}
+  if(!address){alert('请填写地址');return}
+  if(!price||price<=0){alert('请填写有效的报酬金额');return}
+  if(!phone){alert('请填写联系电话');return}
+
+  const order={
+    id:generateId(),
+    petName,petType,serviceType,serviceTime,address,price,note,phone,
+    status:'pending', // pending/ongoing/done
+    takerName:'',
+    takerPhone:'',
+    review:'',
+    rating:0,
+    createdAt:new Date().toISOString()
+  };
+
+  const orders=getOrders();
+  orders.unshift(order);
+  saveOrders(orders);
+
+  // 清空表单
+  ['petName','serviceTime','address','price','note','phone'].forEach(id=>document.getElementById(id).value='');
+
+  alert('需求发布成功！遛狗师们可以看到你的需求了。');
+  switchTab('hall');
+}
+
+function renderOrderList(){
+  const orders=getOrders();
+  const pending=orders.filter(o=>o.status==='pending');
+  let html='';
+  if(pending.length===0){
+    html='<div class="empty"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg><p>暂无待接需求</p><p style="font-size:12px">去发布第一个需求吧</p></div>';
+  }else{
+    const filtered=currentFilter==='all'?pending:pending.filter(o=>o.serviceType.includes(currentFilter));
+    if(filtered.length===0){
+      html='<div class="empty"><p>该分类暂无需求</p></div>';
+    }else{
+      filtered.forEach(o=>{
+        html+=`<div class="order-card">
+          <div class="order-header">
+            <span class="order-pet">${o.petType=='狗'?'🐕':'🐈'} ${o.petName}</span>
+            <span class="badge badge-pending">待接单</span>
+          </div>
+          <div class="order-info">
+            ${o.serviceType} | ${new Date(o.serviceTime).toLocaleString('zh-CN')}<br>
+            📍 ${o.address} | 💰 <b style="color:#f97316">${o.price}元</b>
+            ${o.note?`<br>📝 ${o.note}`:''}
+          </div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:6px">${timeAgo(o.createdAt)}</div>
+          <div class="order-footer">
+            <button class="btn btn-primary btn-sm" onclick="takeOrder('${o.id}')">我要接单</button>
+          </div>
+        </div>`;
+      });
+    }
+  }
+  document.getElementById('orderList').innerHTML=html;
+}
+
+function filterOrders(type,el){
+  currentFilter=type;
+  document.querySelectorAll('#filterBar .filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderOrderList();
+}
+
+function takeOrder(orderId){
+  const takerName=prompt('请输入你的昵称：');
+  if(!takerName)return;
+  const takerPhone=prompt('请输入你的联系电话（仅供对方联系）：');
+  if(!takerPhone)return;
+
+  const orders=getOrders();
+  const idx=orders.findIndex(o=>o.id===orderId);
+  if(idx===-1){alert('该需求已被接走或不存在');renderOrderList();return}
+  orders[idx].status='ongoing';
+  orders[idx].takerName=takerName;
+  orders[idx].takerPhone=takerPhone;
+  orders[idx].takenAt=new Date().toISOString();
+  saveOrders(orders);
+  alert('接单成功！请按时完成服务。可在"订单"页面查看。');
+  renderOrderList();
+}
+
+function completeOrder(orderId){
+  if(!confirm('确认标记为已完成？'))return;
+  const orders=getOrders();
+  const idx=orders.findIndex(o=>o.id===orderId);
+  if(idx===-1)return;
+  orders[idx].status='done';
+  orders[idx].doneAt=new Date().toISOString();
+  saveOrders(orders);
+  renderMyOrders();
+  alert('已标记完成！');
+}
+
+function openReview(orderId){
+  currentReviewOrderId=orderId;
+  currentRating=0;
+  document.getElementById('reviewText').value='';
+  document.querySelectorAll('#ratingStars span').forEach(s=>s.classList.remove('active'));
+  document.getElementById('reviewModal').classList.add('show');
+}
+
+function setRating(r){
+  currentRating=r;
+  document.querySelectorAll('#ratingStars span').forEach((s,i)=>s.classList.toggle('active',i<r));
+}
+
+function submitReview(){
+  if(currentRating===0){alert('请先评分');return}
+  const text=document.getElementById('reviewText').value.trim();
+  const orders=getOrders();
+  const idx=orders.findIndex(o=>o.id===currentReviewOrderId);
+  if(idx===-1)return;
+  orders[idx].rating=currentRating;
+  orders[idx].review=text;
+  saveOrders(orders);
+  closeReview();
+  renderMyOrders();
+  alert('评价提交成功！');
+}
+
+function closeReview(){
+  document.getElementById('reviewModal').classList.remove('show');
+  currentReviewOrderId=null;
+  currentRating=0;
+}
+
+function renderMyOrders(){
+  const orders=getOrders();
+  const myPosted=orders.filter(o=>o.status!=='pending'||true); // 显示所有自己发布的
+  
+  let postedHtml='';
+  orders.forEach(o=>{
+    const statusLabels={pending:'待接单',ongoing:'进行中',done:'已完成'};
+    const statusClasses={pending:'badge-pending',ongoing:'badge-ongoing',done:'badge-done'};
+    postedHtml+=`<div class="order-card" style="border-left-color:${o.status==='done'?'#22c55e':o.status==='ongoing'?'#3b82f6':'#f59e0b'}">
+      <div class="order-header">
+        <span class="order-pet">${o.petName}</span>
+        <span class="badge ${statusClasses[o.status]}">${statusLabels[o.status]}</span>
+      </div>
+      <div class="order-info">
+        ${o.serviceType} | ${new Date(o.serviceTime).toLocaleString('zh-CN')}<br>
+        📍 ${o.address} | 💰 ${o.price}元
+        ${o.takerName?`<br>👤 接单人：${o.takerName}`:''}
+        ${o.status==='done'&&o.rating?`<br>⭐ ${'★'.repeat(o.rating)}${o.review?' - '+o.review:''}`:''}
+      </div>
+    </div>`;
+  });
+  if(postedHtml==='')postedHtml='<div class="empty"><p>暂无发布记录</p></div>';
+  document.getElementById('myPostedOrders').innerHTML=postedHtml;
+
+  const myTaken=orders.filter(o=>o.takerName&&(o.status==='ongoing'||o.status==='done'));
+  let takenHtml='';
+  myTaken.forEach(o=>{
+    takenHtml+=`<div class="order-card" style="border-left-color:#3b82f6">
+      <div class="order-header">
+        <span class="order-pet">${o.petName}</span>
+        <span class="badge ${o.status==='ongoing'?'badge-ongoing':'badge-done'}">${o.status==='ongoing'?'进行中':'已完成'}</span>
+      </div>
+      <div class="order-info">
+        ${o.serviceType} | ${new Date(o.serviceTime).toLocaleString('zh-CN')}<br>
+        📍 ${o.address} | 💰 ${o.price}元<br>
+        📞 联系人：${o.phone}
+      </div>
+      <div class="order-footer">
+        ${o.status==='ongoing'?`<button class="btn btn-success btn-sm" style="background:#22c55e;color:#fff" onclick="completeOrder('${o.id}')">标记完成</button>`:''}
+        ${o.status==='done'&&!o.rating?`<button class="btn btn-outline btn-sm" onclick="openReview('${o.id}')">去评价</button>`:''}
+      </div>
+    </div>`;
+  });
+  if(takenHtml==='')takenHtml='<div class="empty"><p>暂无接单记录</p></div>';
+  document.getElementById('myTakenOrders').innerHTML=takenHtml;
+}
+
+function updateStats(){
+  const orders=getOrders();
+  document.getElementById('statOrders').textContent=orders.filter(o=>o.status==='done').length;
+  document.getElementById('statPending').textContent=orders.filter(o=>o.status==='pending').length;
+  const takers=new Set(orders.filter(o=>o.takerName).map(o=>o.takerName));
+  document.getElementById('statWalkers').textContent=takers.size;
+}
+
+function timeAgo(iso){
+  const diff=Date.now()-new Date(iso).getTime();
+  const m=Math.floor(diff/60000);
+  if(m<1)return '刚刚';
+  if(m<60)return m+'分钟前';
+  const h=Math.floor(m/60);
+  if(h<24)return h+'小时前';
+  return Math.floor(h/24)+'天前';
+}
+
+// 注册 Service Worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// 初始化
+updateStats();
+</script>
+</body>
+</html>
