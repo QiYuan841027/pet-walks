@@ -1,0 +1,78 @@
+{
+  "name": "宠步 - 宠物代遛平台",
+  "short_name": "宠步",
+  "description": "宠物代遛代喂接单平台。不方便遛狗？找人帮你。有空闲时间？接单赚零花钱。让每只宠物都有人陪。",
+  "id": "pet-walker-app-v1",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "lang": "zh-CN",
+  "scope": "./",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "categories": ["lifestyle", "social"],
+  "iarc_rating_id": "e10d1f4c-6a3d-5b2e-9f8a-7c6d5e4f3a2b",
+  "shortcuts": [
+    {
+      "name": "发布需求",
+      "short_name": "发布",
+      "description": "发布宠物代遛/代喂需求",
+      "url": "./index.html?tab=publish",
+      "icons": [{"src": "icon-96.png", "sizes": "96x96"}]
+    },
+    {
+      "name": "需求大厅",
+      "short_name": "大厅",
+      "description": "浏览待接需求并接单",
+      "url": "./index.html?tab=hall",
+      "icons": [{"src": "icon-96.png", "sizes": "96x96"}]
+    },
+    {
+      "name": "我的订单",
+      "short_name": "订单",
+      "description": "查看和管理订单",
+      "url": "./index.html?tab=orders",
+      "icons": [{"src": "icon-96.png", "sizes": "96x96"}]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "首页"
+    },
+    {
+      "src": "screenshot-hall.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "需求大厅"
+    }
+  ],
+  "icons": [
+    {
+      "src": "icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
